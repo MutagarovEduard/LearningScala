@@ -1,4 +1,4 @@
-import akka.actor.{Actor, ActorSystem, Props}
+import akka.actor.{Actor, ActorRef, ActorSystem, Props}
 object PingPong extends App{
   sealed trait PingPongCommand
   case class Start() extends PingPongCommand
@@ -6,7 +6,7 @@ object PingPong extends App{
   case class Ping() extends PingPongCommand
   case class Pong() extends PingPongCommand
 
-  class PingActor(maxCount:Int) extends Actor {
+  class PingActor(maxCount:Int, pongRef:ActorRef) extends Actor {
     var count:Int = 0
     def countPlus: Unit = {
       count+=1
@@ -15,14 +15,14 @@ object PingPong extends App{
       case Start =>
         countPlus
         print("ping ")
-        pong ! Pong
+        pongRef ! Pong
       case Ping =>
         if (count<maxCount) {
           countPlus
           print("ping ")
-          pong ! Pong
+          pongRef ! Pong
         } else {
-          pong ! Stop
+          pongRef ! Stop
           println("Ping stopped")
           context.stop(self)
         }
@@ -32,16 +32,16 @@ object PingPong extends App{
     def receive:Actor.Receive = {
       case Pong =>
         println("pong")
-        ping ! Ping
+        sender() ! Ping
       case Stop =>
         println("Pong stopped")
         context.stop(self)
     }
   }
-    val sys = ActorSystem("system")
-    val ping = sys.actorOf(Props(new PingActor(10)))
-    val pong = sys.actorOf(Props(new PongActor))
-
-    ping ! Start
-    sys.terminate()
+  val sys = ActorSystem("system")
+  val pong = sys.actorOf(Props(new PongActor))
+  val ping = sys.actorOf(Props(new PingActor(10,pong)))
+  ping ! Start
+  sys.terminate()
 }
+
