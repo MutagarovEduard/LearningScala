@@ -5,31 +5,32 @@ import scala.util.{Failure, Success}
 
 class PingActor(maxCount:Int) extends Actor {
 
-
-  var pongRef1:ActorRef = ActorRef.noSender;
+  var pongRef:ActorRef = ActorRef.noSender;
   var count:Int = 0
-  def countPlus: Unit = {
+  def countPlus(): Unit = {
     count+=1
+  }
+
+  def pingMsg = {
+    countPlus()
+    print("ping ")
+    pongRef ! Pong
   }
 
   def receive:Actor.Receive = {
     case Start =>
       system.actorSelection("user/pong/").resolveOne().onComplete {
         case Success(actorRef) =>
-          this.pongRef1 = actorRef
-          countPlus
-          print("ping ")
-          pongRef1 ! Pong
+          pongRef = actorRef
+          pingMsg
         case Failure(exception) => println(exception)
       }
 
     case Ping =>
       if (count<maxCount) {
-        countPlus
-        print("ping ")
-        pongRef1 ! Pong
+        pingMsg
       } else {
-        pongRef1 ! Stop
+        pongRef ! Stop
         println("Ping stopped")
         context.stop(self)
       }
