@@ -1,10 +1,8 @@
 import akka.actor.{Actor, ActorRef, Props}
-import akka.http.scaladsl.server.Directives.{complete, get, path}
+import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
 import akka.pattern.ask
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
 import scala.io.StdIn
 import scala.util.{Failure, Success}
 class WebServerActor extends Actor {
@@ -17,22 +15,23 @@ class WebServerActor extends Actor {
     case Success(ref) => webClient = ref
     case Failure(ex) => println(ex)
   }
-
+  def parseStr(resultStr: String) = {
+    var result = resultStr.split(",")
+    result = result(1).split(":")
+    val str = result(1).substring(1, result(1).length - 2)
+    str
+  }
   def receive:Receive = {
     case WebCommands.Start => {
       println(self.toString())
       def route:Route = path("joke") {
         get {
-          var requestResult = ""
-          val req = (webClient ? RequestJoke).mapTo[String]
-          val resultStr:String = Await.result(req,4 seconds)
-          if (req.isCompleted) {
-            var result = resultStr.split(",")
-            result = result(1).split(":")
-            val str = result(1).substring(1, result(1).length - 2)
-            complete(JokeJson(str))
+          onComplete((webClient ? RequestJoke).mapTo[String]) {
+            case Success(result) =>
+              complete(JokeJson(parseStr(result)))
+            case Failure(exception) =>
+              complete(exception.printStackTrace().toString)
           }
-          else complete("Error")
         }
       }
       val bindingFuture = WebCommands.binding(route)
