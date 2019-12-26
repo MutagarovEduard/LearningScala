@@ -19,7 +19,12 @@ class WebClient extends Actor {
            val unmarshalFuture = Unmarshal(result.entity).to[String]
            val string:String = Await.result(unmarshalFuture,300 millis)
            if (unmarshalFuture.isCompleted) {
-             sender() ! string
+             println(string)
+             val newSender = sender()
+             println(newSender)
+             println(sender())
+             newSender ! "123"
+             newSender ! string
            }
          case Failure(exception) => println(exception)
        }

@@ -25,7 +25,7 @@ class WebServerActor extends Actor {
         get {
           var requestResult = ""
           val req = (webClient ? RequestJoke).mapTo[String]
-          val resultStr:String = Await.result(req,2 seconds)
+          val resultStr:String = Await.result(req,4 seconds)
           if (req.isCompleted) {
             var result = resultStr.split(",")
             result = result(1).split(":")
@@ -41,5 +41,6 @@ class WebServerActor extends Actor {
       bindingFuture.flatMap(_.unbind())
         .onComplete(_ => system.terminate())
     }
+    case _ => "WTF"
   }
 }
