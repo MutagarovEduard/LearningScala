@@ -1,3 +1,5 @@
+package webService
+
 import akka.actor.{Actor, ActorRef, Props}
 import akka.http.scaladsl.server.Directives._
 import akka.http.scaladsl.server.Route
@@ -8,10 +10,10 @@ import scala.util.{Failure, Success}
 class WebServerActor extends Actor {
   import WebCommands._
 
-  system.actorOf(Props[WebClient],"WebClient")
+  system.actorOf(Props[WebClient],"webService.WebClient")
   var webClient:ActorRef = ActorRef.noSender
 
-  system.actorSelection("/user/WebClient/").resolveOne().onComplete {
+  system.actorSelection("/user/webService.WebClient/").resolveOne().onComplete {
     case Success(ref) => webClient = ref
     case Failure(ex) => println(ex)
   }
@@ -23,12 +25,11 @@ class WebServerActor extends Actor {
   }
   def receive:Receive = {
     case WebCommands.Start => {
-      println(self.toString())
       def route:Route = path("joke") {
         get {
-          onComplete((webClient ? RequestJoke).mapTo[String]) {
+          onComplete((webClient ? RequestJoke).mapTo[JokeJson]) {
             case Success(result) =>
-              complete(JokeJson(parseStr(result)))
+              complete(result)
             case Failure(exception) =>
               complete(exception.printStackTrace().toString)
           }

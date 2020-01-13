@@ -1,17 +1,19 @@
-import PingPongMessage._
+package ping_pong
+
 import akka.actor.{Actor, ActorRef}
+import ping_pong.PingPongMessage.{Ping, Start, system, _}
 
 import scala.util.{Failure, Success}
 
 class PingActor(maxCount:Int) extends Actor {
 
-  var pongRef:ActorRef = ActorRef.noSender;
+  var pongRef:ActorRef = _
   var count:Int = 0
   def countPlus(): Unit = {
     count+=1
   }
 
-  def pingMsg = {
+  def pingMsg:Unit = {
     countPlus()
     print("ping ")
     pongRef ! Pong

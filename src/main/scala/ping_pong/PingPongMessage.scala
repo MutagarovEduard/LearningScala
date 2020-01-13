@@ -1,3 +1,5 @@
+package ping_pong
+
 import akka.actor.ActorSystem
 import akka.util.Timeout
 import scala.concurrent.duration._

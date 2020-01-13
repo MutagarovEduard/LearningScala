@@ -1,3 +1,5 @@
+package webService
+
 import akka.actor.{ActorRef, Props}
 
 object WebServiceMain {
@@ -7,6 +9,3 @@ object WebServiceMain {
     webServer ! WebCommands.Start
   }
 }
-
-
-

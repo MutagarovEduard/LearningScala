@@ -1,5 +1,7 @@
-import PingPongMessage._
+package ping_pong
+
 import akka.actor.Props
+import ping_pong.PingPongMessage._
 
 object PingPong extends App{
   val pong = system.actorOf(Props(new PongActor),"pong")
@@ -7,4 +9,3 @@ object PingPong extends App{
   ping ! Start
   system.terminate()
 }
-

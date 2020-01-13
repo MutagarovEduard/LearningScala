@@ -1,3 +1,5 @@
+package webService
+
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.marshallers.sprayjson.SprayJsonSupport
 import akka.http.scaladsl.server.Route
@@ -9,7 +11,6 @@ object WebCommands extends DefaultJsonProtocol with SprayJsonSupport {
   import akka.actor.ActorSystem
   import akka.stream.ActorMaterializer
   import akka.util.Timeout
-
   import scala.concurrent.duration._
 
   implicit val system = ActorSystem("my-system")

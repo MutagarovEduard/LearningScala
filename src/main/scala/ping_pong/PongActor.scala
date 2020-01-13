@@ -1,5 +1,7 @@
-import PingPongMessage.{Pong, Stop, _}
+package ping_pong
+
 import akka.actor.Actor
+import ping_pong.PingPongMessage.{Pong, Stop, _}
 
 class PongActor extends Actor{
 
